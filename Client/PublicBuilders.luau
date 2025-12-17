@@ -49,7 +49,7 @@ return {
     end;
 
     SendSocket = function(self:Types.Localizer, Packet:any, Server:(string | number)?)
-        if Server then
+        if Server ~= nil then
             if typeof(Server) == "string" then
                 Server = tonumber(Server)
             end
@@ -58,7 +58,7 @@ return {
             self.__Gateways[shard]:send(serde.encode("json", Packet))
         else
             for I, item in pairs(self.__Gateways) do
-                item:send(serde.encode("json"), Packet)
+                item:send(serde.encode("json", Packet))
             end
         end
     end;
