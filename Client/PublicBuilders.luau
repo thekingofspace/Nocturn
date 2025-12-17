@@ -83,6 +83,7 @@ return {
     
     Start = function(self:Types.Localizer)
         local GatewayInfo = self:RestSend("GET", "gateway/bot")
+        self.__ShardRec = GatewayInfo.Shards
 
         if self.Shards == 0 then
             self.Shards = GatewayInfo.shards

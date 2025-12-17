@@ -26,12 +26,8 @@ return {
     ShardRec = 0;
     Resumable = false;
 
-    GetGateway = function(self:Types.Localizer, Shard:number, ResumeURL:string?)
-        local Loaders = self:RestSend("GET", "gateway/bot")
-
-        self.__ShardRec = Loaders.Shards
-        
-        self.__Gateways[Shard] = net.socket(ResumeURL or Loaders.url .. "?v=10&encoding=json")
+    GetGateway = function(self:Types.Localizer, Shard:number, ResumeURL:string?)        
+        self.__Gateways[Shard] = net.socket(ResumeURL or "wss://gateway.discord.gg/?v=10&encoding=json")
 
         self.__ShardInfo[Shard] = self.__ShardInfo[Shard] or {RST = 0, HeartCount = 0, Guilds = {}}
     end;
