@@ -23,7 +23,7 @@ type Plugin = {
 }
 
 local PluginMethods = {}
-PluginMethods.__index = plugin
+PluginMethods.__index = PluginMethods
 
 function PluginMethods.Ignore(self:Plugin, Method:string)
     module.IgnoreList[Method:lower()] = true
@@ -34,9 +34,11 @@ function PluginMethods.RegisterMethod(self:Plugin, Method:string, Callback:(self
 end
 
 local function SafeCall(Plugin: Plugin,MethodName: string,Fn: (...any) -> (),...)
-    local ok, err = pcall(Fn, ...)
-    if not ok then
-        print(`[PLUGIN:{Plugin.Name}] {MethodName} failed:\n{err}`)
+    if Fn then
+        local ok, err = pcall(Fn, ...)
+        if not ok then
+            print(`[PLUGIN:{Plugin.Name}] {MethodName} failed:\n{err}`)
+        end
     end
 end
 

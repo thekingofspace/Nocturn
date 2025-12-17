@@ -57,11 +57,11 @@ local Methods = {
 return function(Token:string, Intents:number, Shards:number?)
     local Client:Types.Localizer = setmetatable(table.clone(StandardProperties), Methods)::any
 
-    PluginBuilder.ApplyPlugins(Client)
-
     Client.Token = Token
     Client.Intents = Intents
     Client.Shards = Shards or 0
+
+    PluginBuilder.ApplyPlugins(Client)
 
     return Client
 end

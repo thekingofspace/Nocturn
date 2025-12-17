@@ -154,7 +154,7 @@ return {
                     end
 
                     if Packet.op == 0 then
-                        PluginBuilder.OnEvent(self, Packet.t:lower(), Packet.d)
+                        self:t_SpawnProccess(PluginBuilder.OnEvent, self, Packet.t:lower(), Packet.d)
 
                         if PluginBuilder.IgnoreList[Packet.t:lower()] ~= true then
                             if self.__StaticEntries[Packet.t:lower()] then
