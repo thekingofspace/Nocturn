@@ -26,10 +26,13 @@ return {
     ShardRec = 0;
     Resumable = false;
 
-    GetGateway = function(self:Types.Localizer, Shard:number, ResumeURL:string?)        
-        self.__Gateways[Shard] = net.socket(ResumeURL or "wss://gateway.discord.gg/?v=10&encoding=json")
+    GetGateway = function(self:Types.Localizer, Shard:number, ResumeURL:string?)    
+        local Gate = net.socket(ResumeURL or "wss://gateway.discord.gg/?v=10&encoding=json")
+        self.__Gateways[Shard] = Gate
 
         self.__ShardInfo[Shard] = self.__ShardInfo[Shard] or {RST = 0, HeartCount = 0, Guilds = {}}
+        
+        return Gate
     end;
 
     Identify = function(self:Types.Localizer, Gate:net.WebSocket, Shard:number)

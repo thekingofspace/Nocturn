@@ -118,14 +118,9 @@ return {
 
             local ShardInfo = self.__ShardInfo[Shard]
 
-            if ShardInfo then
-                self:__GetGateway(Shard, ShardInfo.ResumeGate)
-            else
-                self:__GetGateway(Shard)
-            end
+            local Gate = self:__GetGateway(Shard, ShardInfo and ShardInfo.ResumeGate or nil)
 
             ShardInfo = self.__ShardInfo[Shard]
-            local Gate = self.__Gateways[Shard]
 
             if self.__Resumable == false then
                 self:__Identify(Gate, Shard)
