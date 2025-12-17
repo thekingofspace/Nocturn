@@ -30,7 +30,15 @@ local function StandardThread(self:Types.Localizer, fn, ...)
 
     if not Thread then Thread = nil; return end
 
-    fn(...)
+    local suc, err = pcall(function(...)
+        fn(...)
+    end, ...)
+
+    if not suc then
+        print(err)
+    end
+
+    suc, err = nil
 
     self.__StaticThreads[Thread] = nil
 
@@ -43,10 +51,16 @@ function Module.CreateStatic(self:Types.Localizer, ID:string, FN:any)
 end
 
 function Module.RunStatic(self:Types.Localizer, ID:string, ...)
-    local Thread = coroutine.create(StandardThread)
-    self.__StaticThreads[Thread] = os.time()
-    coroutine.resume(Thread, self, self.__StaticEntries[ID:lower()], ...)
-    Thread = nil
+    local Event = self.__StaticEntries[ID:lower()]
+
+    if Event then
+        local Thread = coroutine.create(StandardThread)
+        self.__StaticThreads[Thread] = os.time()
+        coroutine.resume(Thread, self, self.__StaticEntries[ID:lower()], ...)
+        Thread = nil
+    end
+
+    Event = nil
     return self
 end
 
