@@ -4,8 +4,6 @@ local Types = require("./Types")
 local function StandardThread(self:Types.Localizer, Aray, fn, ...)
     local Thread = coroutine.running()
 
-    if not Thread then Thread = nil; return end
-
     local suc, err = pcall(function(...)
         fn(...)
     end, ...)
@@ -56,7 +54,7 @@ function Module.RunStatic(self:Types.Localizer, ID:string, ...)
     if Event then
         local Thread = coroutine.create(StandardThread)
         self.__StaticThreads[Thread] = os.time()
-        coroutine.resume(Thread, self, self.__StaticEntries, self.__StaticEntries[ID:lower()], ...)
+        coroutine.resume(Thread, self, self.__StaticThreads, self.__StaticEntries[ID:lower()], ...)
         Thread = nil
     end
 
