@@ -167,10 +167,10 @@ return {
                     end
 
                     if Packet.op == 0 then
-                        self:t_SpawnProccess(PluginBuilder.OnEvent, self, Packet.t:lower(), Packet.d)
+                        self:t_SpawnProccess(PluginBuilder.OnEvent, self, Packet.t:lower(), Packet.d, CurrentShard)
 
                         if PluginBuilder.IgnoreList[Packet.t:lower()] ~= true and Packet.t ~= "READY" then
-                            self:SpawnEvent(Packet.t, Packet.d)
+                            self:SpawnEvent(Packet.t, Packet.d, CurrentShard)
                         end
 
                         if Packet.t == "READY" then
