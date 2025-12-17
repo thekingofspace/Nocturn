@@ -46,6 +46,7 @@ return {
         if self.__StaticEntries[Event:lower()] then
             self:t_RunStatic(Event:lower(), ...)
         end
+        return self
     end;
 
     SendSocket = function(self:Types.Localizer, Packet:any, Server:(string | number)?)
@@ -61,6 +62,8 @@ return {
                 item:send(serde.encode("json", Packet))
             end
         end
+
+        return self
     end;
 
     IsEvent = function(self:Types.Localizer, Event:string)
@@ -69,6 +72,7 @@ return {
 
     On = function(self:Types.Localizer, Event:string, Callback:(...any) -> nil)
         self:t_CreateStatic(Event, Callback)
+        return self
     end;
     
     Start = function(self:Types.Localizer)
@@ -217,6 +221,8 @@ return {
         self:t_RunStatic("Started")
         self:t_RunStatic("Ready", Ready)
         Ready = nil::any
+
+        return self
     end;
 
 
@@ -233,5 +239,7 @@ return {
 
         self:t_DestroyThreadStatic()
         self:t_KillProccess()
+
+        return self
     end
 }
