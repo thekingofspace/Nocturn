@@ -1,4 +1,6 @@
 local Net = require("@lune/net")
+type ShardInfo = {SessionID:any, RST:number, HeartCount:number, ResumeGate:string?, Guilds:{[number]:{id:string, unavailable:boolean}}}
+
 export type Client<self> = {
     Token:string;
     Intents:number;
@@ -9,6 +11,7 @@ export type Client<self> = {
     SpawnEvent:(self:self, Event:string, ...any) -> self,
     IsEvent:(self:self, Event:string) -> boolean;
     On:(Self:self, Event:string, Callback:(...any) -> nil) -> self;
+    GetShardInfo:(self:self, Shard:number) -> ShardInfo?;
 
     Start:(self:self) -> self;
     Stop:(self:self) -> self
@@ -29,7 +32,7 @@ export type Private<self> = {
         used to manager spawned gateways
     ]]
 
-    __ShardInfo:{[number]:{SessionID:any, RST:number, HeartCount:number, ResumeGate:string?}};
+    __ShardInfo:{[number]:ShardInfo};
 
     __StaticEntries:{[string]:any};
 

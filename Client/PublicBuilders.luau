@@ -72,6 +72,10 @@ return {
         return self.__StaticEntries[Event:lower()] ~= nil
     end;
 
+    GetShardInfo = function(self:Types.Localizer, Shard:number)
+        return self.__ShardInfo[Shard]
+    end;
+
     On = function(self:Types.Localizer, Event:string, Callback:(...any) -> nil)
         self:t_CreateStatic(Event, Callback)
         return self
@@ -182,8 +186,10 @@ return {
                             Ready.application = Ready.application or Packet.d.application
 
                             for I, item in ipairs(Packet.d.guilds) do
-                                table.insert(Ready.guilds, item)
+                                table.insert(ThreadInfo.Guilds, item)
                             end
+
+                            Ready.guilds[CurrentShard] = ThreadInfo.Guilds
 
                             ActiveIdentifies -= 1
                         end

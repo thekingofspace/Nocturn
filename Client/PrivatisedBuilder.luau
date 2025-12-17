@@ -33,7 +33,7 @@ return {
         
         self.__Gateways[Shard] = net.socket(ResumeURL or Loaders.url .. "?v=10&encoding=json")
 
-        self.__ShardInfo[Shard] = self.__ShardInfo[Shard] or {RST = 0, HeartCount = 0}
+        self.__ShardInfo[Shard] = self.__ShardInfo[Shard] or {RST = 0, HeartCount = 0, Guilds = {}}
     end;
 
     Identify = function(self:Types.Localizer, Gate:net.WebSocket, Shard:number)
