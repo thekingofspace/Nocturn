@@ -1,7 +1,4 @@
-CreationBoot = CreationBoot or {}
-
-ExposedMethods = ExposedMethods or {}
-
+local PluginBuilder = require("@self/PluginBuilder")
 local PrivateBuilder = require("@self/PrivatisedBuilder")
 local Threading = require("@self/ThreadManager")
 local PublicBuilder = require("@self/PublicBuilders")
@@ -60,9 +57,7 @@ local Methods = {
 return function(Token:string, Intents:number, Shards:number?)
     local Client:Types.Localizer = setmetatable(table.clone(StandardProperties), Methods)::any
 
-    for I, item in ipairs(CreationBoot) do
-        item(Client)
-    end
+    PluginBuilder.ApplyPlugins(Client)
 
     Client.Token = Token
     Client.Intents = Intents

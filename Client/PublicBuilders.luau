@@ -3,6 +3,7 @@ local EndPoint = "https://discord.com/api/v10"
 local serde = require("@lune/serde")
 local net = require("@lune/net")
 local task = require("@lune/task")
+local PluginBuilder = require("./PluginBuilder")
 
 return {
     RestSend = function(self:Types.Localizer, Method:string, Path:string, Body:any?, Headers:{[string]:any}?)
@@ -93,6 +94,7 @@ return {
         end
 
         self:t_RunStatic("Start")
+        PluginBuilder.OnStart(self)
 
         for I = 1, self.Shards do
             local Shard = I-1
@@ -156,6 +158,11 @@ return {
                     end
                     
                     if Packet.op == 0 then
+                        if PluginBuilder.IgnoreList[Packet.t:lower()] == true then
+                            continue
+                        end
+
+                        PluginBuilder.OnEvent(self, Packet.t:lower(), Packet.d)
                         if self.__StaticEntries[Packet.t:lower()] ~= nil then
                             self:t_RunStatic(Packet.t, Packet.d)
                         else
@@ -198,6 +205,8 @@ return {
     end;
 
     Stop = function(self:Types.Localizer)
+        PluginBuilder.OnStop(self)
+
         for I, item in pairs(self.__Gateways) do
             item:close(4000)
         end
