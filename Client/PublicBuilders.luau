@@ -158,11 +158,11 @@ return {
                     end
                     
                     if Packet.op == 0 then
+                        PluginBuilder.OnEvent(self, Packet.t:lower(), Packet.d)
                         if PluginBuilder.IgnoreList[Packet.t:lower()] == true then
                             continue
                         end
-
-                        PluginBuilder.OnEvent(self, Packet.t:lower(), Packet.d)
+                        
                         if self.__StaticEntries[Packet.t:lower()] ~= nil then
                             self:t_RunStatic(Packet.t, Packet.d)
                         else
