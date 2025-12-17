@@ -192,13 +192,18 @@ return {
             self:t_SpawnProccess(function()
                 local ThreadInfo = self.__ShardInfo[Shard]
                 local Gateway = Gate
+                local CurrentShard = Shard
 
                 while true do
                     task.wait(ThreadInfo.HeartCount)
                     Gateway:send(serde.encode("json", { op = 1, d = ThreadInfo.RST }))
-                    self:SpawnEvent("Heartbeat")
+                    self:SpawnEvent("Heartbeat", CurrentShard)
                 end
             end)
+            Shard = nil
+            ShardInfo = nil
+            Gate = nil
+            InitialPacket = nil
 
             if MaxConcurrency == 1 and I ~= self.Shards then
                 task.wait(IdentifyDelay)
