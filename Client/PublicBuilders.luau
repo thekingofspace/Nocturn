@@ -70,34 +70,37 @@ return {
     On = function(self:Types.Localizer, Event:string, Callback:(...any) -> nil)
         self:t_CreateStatic(Event, Callback)
     end;
-
-    --[[
-    {
-        session_start_limit = {
-            max_concurrency = 1,
-            remaining = 1000,
-            reset_after = 0,
-            total = 1000,
-        },
-        shards = 1,
-        url = "wss://gateway.discord.gg",
-    }
-    ]]
-
+    
     Start = function(self:Types.Localizer)
         local GatewayInfo = self:RestSend("GET", "gateway/bot")
+
         if self.Shards == 0 then
             self.Shards = GatewayInfo.shards
         end
+
         if self.Shards ~= GatewayInfo.shards then
-            print("Shards do not equal the recommended shards: " .. `Using: {self.Shards} ` .. `Recommends: {GatewayInfo.shards}`)
+            print(
+                "Shards do not equal the recommended shards: " ..
+                `Using: {self.Shards} ` ..
+                `Recommends: {GatewayInfo.shards}`
+            )
         end
+
+        local MaxConcurrency = GatewayInfo.session_start_limit.max_concurrency or 1
+        local IdentifyDelay = 5.5
 
         self:t_RunStatic("Start")
         PluginBuilder.OnStart(self)
 
+        local ActiveIdentifies = 0
+
         for I = 1, self.Shards do
-            local Shard = I-1
+            local Shard = I - 1
+
+            while ActiveIdentifies >= MaxConcurrency do
+                task.wait(0.1)
+            end
+            ActiveIdentifies += 1
 
             local ShardInfo = self.__ShardInfo[Shard]
 
@@ -108,20 +111,16 @@ return {
             end
 
             ShardInfo = self.__ShardInfo[Shard]
-
             local Gate = self.__Gateways[Shard]
-            
+
             if self.__Resumable == false then
                 self:__Identify(Gate, Shard)
-
-                local InitialPacket = serde.decode("json", Gate:next())
-                ShardInfo.HeartCount = InitialPacket.d.heartbeat_interval / 1000
             else
                 self:__Resume(Gate, Shard)
-
-                local InitialPacket = serde.decode("json", Gate:next())
-                ShardInfo.HeartCount = InitialPacket.d.heartbeat_interval / 1000
             end
+
+            local InitialPacket = serde.decode("json", Gate:next())
+            ShardInfo.HeartCount = InitialPacket.d.heartbeat_interval / 1000
 
             self:t_SpawnProccess(function()
                 local ThreadInfo = self.__ShardInfo[Shard]
@@ -134,11 +133,8 @@ return {
                     if Packet.s then
                         ThreadInfo.RST = Packet.s
                     end
-                    
-                    if Packet.close == 4010 then
-                        local GateInfo = self:RestSend("GET", "gateway/bot")
 
-                        self.__ShardRec = GateInfo.Shards
+                    if Packet.close == 4010 then
                         self:__Identify(Gateway, CurrentShard)
                         continue
                     end
@@ -156,27 +152,27 @@ return {
                         end
                         continue
                     end
-                    
+
                     if Packet.op == 0 then
                         PluginBuilder.OnEvent(self, Packet.t:lower(), Packet.d)
-                        if PluginBuilder.IgnoreList[Packet.t:lower()] == true then
-                            continue
-                        end
-                        
-                        if self.__StaticEntries[Packet.t:lower()] ~= nil then
-                            self:t_RunStatic(Packet.t, Packet.d)
-                        else
-                            self:t_RunStatic("undefined", Packet.d, Packet.t:lower())
+
+                        if PluginBuilder.IgnoreList[Packet.t:lower()] ~= true then
+                            if self.__StaticEntries[Packet.t:lower()] then
+                                self:t_RunStatic(Packet.t, Packet.d)
+                            else
+                                self:t_RunStatic("undefined", Packet.d, Packet.t:lower())
+                            end
                         end
 
                         if Packet.t:lower() == "ready" then
                             ThreadInfo.SessionID = Packet.d.session_id
-                            if Packet.d.resume_gateway_url then
-                                ThreadInfo.ResumeGate = Packet.d.resume_gateway_url .. "?v=10&encoding=json"
-                            end
-                        end
 
-                        continue
+                            if Packet.d.resume_gateway_url then
+                                ThreadInfo.ResumeGate =
+                                    Packet.d.resume_gateway_url .. "?v=10&encoding=json"
+                            end
+                            ActiveIdentifies -= 1
+                        end
                     end
                 end
             end)
@@ -184,25 +180,22 @@ return {
             self:t_SpawnProccess(function()
                 local ThreadInfo = self.__ShardInfo[Shard]
                 local Gateway = Gate
+
                 while true do
                     task.wait(ThreadInfo.HeartCount)
-
-                    Gateway:send(serde.encode("json", {op = 1, d = ThreadInfo.RST}))
-
+                    Gateway:send(serde.encode("json", { op = 1, d = ThreadInfo.RST }))
                     self:SpawnEvent("Heartbeat")
                 end
             end)
-            Gate = nil
-            ShardInfo = nil
-            Shard = nil
 
-            if I ~= self.Shards then
-                task.wait(math.max(GatewayInfo.session_start_limit.reset_after / 1000, 0))
+            if MaxConcurrency == 1 and I ~= self.Shards then
+                task.wait(IdentifyDelay)
             end
         end
 
         self:t_RunStatic("Started")
     end;
+
 
     Stop = function(self:Types.Localizer)
         PluginBuilder.OnStop(self)
