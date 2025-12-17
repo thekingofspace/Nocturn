@@ -56,7 +56,7 @@ return {
             }
         }))
 
-        self:t_RunStatic("Resume")
+        self:SpawnEvent("Resume")
     end;
 
     GetGuildShard = function(self:Types.Localizer, guildId: number, shardCount: number)

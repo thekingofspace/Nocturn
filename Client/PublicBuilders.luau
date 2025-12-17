@@ -45,6 +45,8 @@ return {
     SpawnEvent = function(self:Types.Localizer, Event:string, ...)
         if self.__StaticEntries[Event:lower()] then
             self:t_RunStatic(Event:lower(), ...)
+        elseif self.__StaticEntries["undefined"] then
+            self:t_RunStatic("undefined", Event:lower(), ...)
         end
         return self
     end;
@@ -95,7 +97,7 @@ return {
         local MaxConcurrency = GatewayInfo.session_start_limit.max_concurrency or 1
         local IdentifyDelay = 5.5
 
-        self:t_RunStatic("Start")
+        self:SpawnEvent("Start")
         PluginBuilder.OnStart(self)
 
         local ActiveIdentifies = 0
@@ -164,11 +166,7 @@ return {
                         self:t_SpawnProccess(PluginBuilder.OnEvent, self, Packet.t:lower(), Packet.d)
 
                         if PluginBuilder.IgnoreList[Packet.t:lower()] ~= true and Packet.t ~= "READY" then
-                            if self.__StaticEntries[Packet.t:lower()] then
-                                self:t_RunStatic(Packet.t, Packet.d)
-                            else
-                                self:t_RunStatic("undefined", Packet.d, Packet.t:lower())
-                            end
+                            self:SpawnEvent(Packet.t, Packet.d)
                         end
 
                         if Packet.t == "READY" then
@@ -218,8 +216,8 @@ return {
             task.wait(0.1)
         end
 
-        self:t_RunStatic("Started")
-        self:t_RunStatic("Ready", Ready)
+        self:SpawnEvent("Started")
+        self:SpawnEvent("Ready", Ready)
         Ready = nil::any
 
         return self
