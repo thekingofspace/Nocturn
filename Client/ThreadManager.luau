@@ -1,31 +1,7 @@
 local Module = {}
 local Types = require("./Types")
 
-function Module.SpawnProccess(self:Types.Localizer, fn:any)
-    local Thread = coroutine.create(fn)
-
-    table.insert(self.__ProccesorThreads, Thread)
-
-    coroutine.resume(Thread)
-
-    Thread = nil
-
-    return self
-end
-
-function Module.KillProccess(self:Types.Localizer)
-    for _, Thread in ipairs(self.__ProccesorThreads) do
-        pcall(function()
-            coroutine.close(Thread)
-        end)
-    end
-
-    table.clear(self.__ProccesorThreads)
-
-    return self
-end
-
-local function StandardThread(self:Types.Localizer, fn, ...)
+local function StandardThread(self:Types.Localizer, Aray, fn, ...)
     local Thread = coroutine.running()
 
     if not Thread then Thread = nil; return end
@@ -40,9 +16,33 @@ local function StandardThread(self:Types.Localizer, fn, ...)
 
     suc, err = nil
 
-    self.__StaticThreads[Thread] = nil
+    Aray[Thread] = nil
 
     Thread = nil
+end
+
+function Module.SpawnProccess(self:Types.Localizer, fn:any, ...)
+    local Thread = coroutine.create(StandardThread)
+
+    self.__ProccesorThreads[Thread] = os.time()
+
+    coroutine.resume(Thread, self, self.__ProccesorThreads, fn, ...)
+
+    Thread = nil
+
+    return self
+end
+
+function Module.KillProccess(self:Types.Localizer)
+    for Thread, _ in pairs(self.__ProccesorThreads) do
+        pcall(function()
+            coroutine.close(Thread)
+        end)
+    end
+
+    table.clear(self.__ProccesorThreads)
+
+    return self
 end
 
 function Module.CreateStatic(self:Types.Localizer, ID:string, FN:any)
@@ -56,7 +56,7 @@ function Module.RunStatic(self:Types.Localizer, ID:string, ...)
     if Event then
         local Thread = coroutine.create(StandardThread)
         self.__StaticThreads[Thread] = os.time()
-        coroutine.resume(Thread, self, self.__StaticEntries[ID:lower()], ...)
+        coroutine.resume(Thread, self, self.__StaticEntries, self.__StaticEntries[ID:lower()], ...)
         Thread = nil
     end
 

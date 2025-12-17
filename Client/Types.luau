@@ -21,7 +21,7 @@ export type Private<self> = {
         many of these can run togethor depending on X gateways
     ]]
 
-    __ProccesorThreads:{thread}; --[[
+    __ProccesorThreads:{[thread]:number}; --[[
         Threads can be safely closed on calling stop
     ]]
 
