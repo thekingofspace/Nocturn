@@ -133,7 +133,7 @@ return {
                         ThreadInfo.RST = Packet.s
                     end
                     
-                    if Packet == 4010 then
+                    if Packet.close == 4010 then
                         local GateInfo = self:RestSend("GET", "gateway/bot")
 
                         self.__ShardRec = GateInfo.Shards
