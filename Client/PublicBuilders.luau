@@ -78,6 +78,8 @@ return {
             self.Shards = GatewayInfo.shards
         end
 
+        local Ready = {guilds = {}}
+
         if self.Shards ~= GatewayInfo.shards then
             print(
                 "Shards do not equal the recommended shards: " ..
@@ -100,6 +102,7 @@ return {
             while ActiveIdentifies >= MaxConcurrency do
                 task.wait(0.1)
             end
+
             ActiveIdentifies += 1
 
             local ShardInfo = self.__ShardInfo[Shard]
@@ -156,7 +159,7 @@ return {
                     if Packet.op == 0 then
                         self:t_SpawnProccess(PluginBuilder.OnEvent, self, Packet.t:lower(), Packet.d)
 
-                        if PluginBuilder.IgnoreList[Packet.t:lower()] ~= true then
+                        if PluginBuilder.IgnoreList[Packet.t:lower()] ~= true and Packet.t ~= "READY" then
                             if self.__StaticEntries[Packet.t:lower()] then
                                 self:t_RunStatic(Packet.t, Packet.d)
                             else
@@ -164,13 +167,22 @@ return {
                             end
                         end
 
-                        if Packet.t:lower() == "ready" then
+                        if Packet.t == "READY" then
                             ThreadInfo.SessionID = Packet.d.session_id
 
                             if Packet.d.resume_gateway_url then
                                 ThreadInfo.ResumeGate =
-                                    Packet.d.resume_gateway_url .. "?v=10&encoding=json"
+                                Packet.d.resume_gateway_url .. "?v=10&encoding=json"
                             end
+
+                            Ready.user = Ready.user or Packet.d.user
+
+                            Ready.application = Ready.application or Packet.d.application
+
+                            for I, item in ipairs(Packet.d.guilds) do
+                                table.insert(Ready.guilds, item)
+                            end
+
                             ActiveIdentifies -= 1
                         end
                     end
@@ -193,7 +205,13 @@ return {
             end
         end
 
+        while ActiveIdentifies ~= 0 do
+            task.wait(0.1)
+        end
+
         self:t_RunStatic("Started")
+        self:t_RunStatic("Ready", Ready)
+        Ready = nil::any
     end;
 
 
