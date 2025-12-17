@@ -49,7 +49,7 @@ return {
 
     SendSocket = function(self:Types.Localizer, Packet:any, Server:(string | number)?)
         if Server then
-            if typeof(Server) ~= "string" then
+            if typeof(Server) == "string" then
                 Server = tonumber(Server)
             end
             local shard = self:__GetGuildShard(Server::number, self.Shards)
