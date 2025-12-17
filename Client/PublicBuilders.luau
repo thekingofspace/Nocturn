@@ -101,7 +101,7 @@ return {
         local MaxConcurrency = GatewayInfo.session_start_limit.max_concurrency or 1
         local IdentifyDelay = 5.5
 
-        self:SpawnEvent("Start")
+        self:SpawnEvent("Start", nil, 0)
         PluginBuilder.OnStart(self)
 
         local ActiveIdentifies = 0
@@ -191,6 +191,8 @@ return {
 
                             Ready.guilds[CurrentShard] = ThreadInfo.Guilds
 
+                            self:SpawnEvent("Shard_Started", Packet.d, CurrentShard)
+
                             ActiveIdentifies -= 1
                         end
                     end
@@ -205,7 +207,7 @@ return {
                 while true do
                     task.wait(ThreadInfo.HeartCount)
                     Gateway:send(serde.encode("json", { op = 1, d = ThreadInfo.RST }))
-                    self:SpawnEvent("Heartbeat", CurrentShard)
+                    self:SpawnEvent("Heartbeat", nil, CurrentShard)
                 end
             end)
             Shard = nil
@@ -222,8 +224,8 @@ return {
             task.wait(0.1)
         end
 
-        self:SpawnEvent("Started")
-        self:SpawnEvent("Ready", Ready)
+        self:SpawnEvent("Started", nil, 0)
+        self:SpawnEvent("Ready", Ready, 0)
         Ready = nil::any
 
         return self
