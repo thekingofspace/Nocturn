@@ -46,7 +46,7 @@ export type Private<self> = {
 }
 
 export type ThreadMethods<self>  = {
-    t_SpawnProccess:(self:self, FN:any) -> self;
+    t_SpawnProccess:(self:self, FN:any, ...any) -> self;
     t_KillProccess:(self:self) -> self;
 
     t_CreateStatic:(self:self, ID:string, FN:any) -> self;

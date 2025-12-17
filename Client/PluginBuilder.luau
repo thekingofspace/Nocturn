@@ -8,7 +8,7 @@ LoadPlugins = LoadPlugins or {}
 
 plugin = {}
 
-export type Plugin = {
+type Plugin = {
     Name: string;
     Version: string;
     LoadOrder: number;
