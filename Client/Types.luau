@@ -8,6 +8,7 @@ export type Client<self> = {
 
     RestSend:(self:self, Method:string, Path:string, Body:any?, Headers:{[string]:any}?) -> self;
     SendSocket:(self:self, Packet:any, Server:(string | number)?) -> self;
+    SendShard:(self:self, Packet:any, Shard:number) -> self;
     SpawnEvent:(self:self, Event:string, ...any) -> self,
     IsEvent:(self:self, Event:string) -> boolean;
     On:(Self:self, Event:string, Callback:(...any) -> nil) -> self;

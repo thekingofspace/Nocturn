@@ -68,6 +68,14 @@ return {
         return self
     end;
 
+    SendShard = function(self:Types.Localizer, Packet:any, Shard:number)
+        if self.__Gateways[Shard] then
+            self.__Gateways[Shard]:send(serde.encode("json", Packet))
+        end
+
+        return self
+    end;
+
     IsEvent = function(self:Types.Localizer, Event:string)
         return self.__StaticEntries[Event:lower()] ~= nil
     end;
