@@ -55,17 +55,17 @@ local Methods = {
     end
 }
 
-return function(Token:string, Intents:number, Shards:number?)
+return function(Token:string, Intents:number?, Shards:number?)
     if Bots[Token] then return Bots[Token] end
     local Client:Types.Localizer = setmetatable(table.clone(StandardProperties), Methods)::any
 
     Client.Token = Token
-    Client.Intents = Intents
+    Client.Intents = Intents or bit32.lshift(1,0)
     Client.Shards = Shards or 0
 
     PluginBuilder.ApplyPlugins(Client)
 
     Bots[Token] = Client
-    
+
     return Client
 end
