@@ -6,7 +6,7 @@ export type Client = Types.Client<Client>
 
 export type PrivatisedClient = Types.Localizer
 
-function Module.new(Token:string, Intents:number, Shards:number?):Client
+function Module.new(Token:string, Intents:number?, Shards:number?):Client
     return Client(Token, Intents, Shards)::any
 end
 
