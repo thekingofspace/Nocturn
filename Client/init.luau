@@ -3,7 +3,6 @@ local PrivateBuilder = require("@self/PrivatisedBuilder")
 local Threading = require("@self/ThreadManager")
 local PublicBuilder = require("@self/PublicBuilders")
 local Types = require("@self/Types")
-local Bots = {}
 
 local StandardProperties = {}
 
@@ -56,7 +55,6 @@ local Methods = {
 }
 
 return function(Token:string, Intents:number?, Shards:number?)
-    if Bots[Token] then return Bots[Token] end
     local Client:Types.Localizer = setmetatable(table.clone(StandardProperties), Methods)::any
 
     Client.Token = Token
@@ -64,8 +62,6 @@ return function(Token:string, Intents:number?, Shards:number?)
     Client.Shards = Shards or 0
 
     PluginBuilder.ApplyPlugins(Client)
-
-    Bots[Token] = Client
 
     return Client
 end
