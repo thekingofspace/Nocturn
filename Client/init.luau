@@ -55,7 +55,15 @@ local Methods = {
 }
 
 return function(Token:string, Intents:number?, Shards:number?)
-    local Client:Types.Localizer = setmetatable(table.clone(StandardProperties), Methods)::any
+    local Properties = {}
+    for I, item in pairs(StandardProperties) do
+        if typeof(item) == "table" then
+            Properties[I] = table.clone(item)
+        else
+            Properties[I] = item
+        end
+    end
+    local Client:Types.Localizer = setmetatable(Properties, Methods)::any
 
     Client.Token = Token
     Client.Intents = Intents or bit32.lshift(1,0)
